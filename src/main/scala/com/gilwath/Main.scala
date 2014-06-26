@@ -4,43 +4,42 @@ import spray.routing.SimpleRoutingApp
 import akka.actor.ActorSystem
 import reactivemongo.api.MongoDriver
 import spray.httpx.PlayJsonSupport
-import reactivemongo.api.collections.default.BSONCollection
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
-import com.gilwath.model.Campaign
+import reactivemongo.bson.BSONObjectID
+import com.gilwath.model.{Campaigns, Campaign}
 import scala.concurrent.ExecutionContext.Implicits._
 import play.api.libs.json.Json
 import spray.http.{StatusCodes, HttpResponse}
+import com.gilwath.routing.BSONPathMatcher._
+
+
 
 object Main extends App with SimpleRoutingApp with PlayJsonSupport {
   implicit val system = ActorSystem("my-system")
   val driver = new MongoDriver(system)
-  val db = driver.connection(Seq("localdocker")).db("summit")
-  val collection: BSONCollection = db("campaigns")
+  implicit val db = driver.connection(Seq("localdocker")).db("summit")
 
-  import com.gilwath.model.Campaign._
-
-  val route = pathPrefix("campaign"){
+  val route = pathPrefix("campaign") {
     pathEnd {
       get {
-        complete(collection.find(BSONDocument()).cursor[Campaign].collect[List]().map(l => Json.obj("campaigns" -> l)))
+        complete(Campaigns.findAll().map(l => Json.obj("campaigns" -> l)))
       } ~
         post { entity(as[Campaign]) { campaign =>
           val c = campaign.copy(id = Some(BSONObjectID.generate))
-          complete(collection.save(campaign).map(_ => c))
+          complete(Campaigns.insert(campaign))
           }
         }
     } ~
-      path(Segment) { id =>
+      path(bsonId) { id =>
         put {
           entity(as[Campaign]) { campaign =>
-            complete(collection.update(BSONDocument("_id" -> campaign.id.get), campaign).map(_ => campaign))
+            complete(Campaigns.update(campaign))
           }
         } ~
           get {
-            complete(collection.find(BSONDocument("_id" -> BSONObjectID(id))).one[Campaign])
+            complete(Campaigns.findOneById(id))
           } ~
           delete {
-            complete(collection.remove(BSONDocument("_id" -> BSONObjectID(id))).map(_ => HttpResponse(StatusCodes.OK)))
+            complete(Campaigns.delete(id).map(_ => HttpResponse(StatusCodes.OK)))
           }
       }
   }
