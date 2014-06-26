@@ -3,12 +3,9 @@ package com.gilwath.model
 import reactivemongo.bson._
 import play.api.libs.json._
 import scala.concurrent.Future
-import play.api.libs.json.JsSuccess
 import reactivemongo.bson.BSONInteger
 import reactivemongo.api.DefaultDB
-import play.api.libs.json.JsString
 import reactivemongo.bson.BSONString
-import play.api.data.validation.ValidationError
 import reactivemongo.api.collections.default.BSONCollection
 
 import scala.concurrent.ExecutionContext.Implicits._
@@ -17,16 +14,8 @@ case class Campaign(id: Option[BSONObjectID], title: String, advertiser: String,
 
 object Campaign {
 
-  implicit object BSONObjectIdReads extends Reads[BSONObjectID] {
-    def reads(json: JsValue): JsResult[BSONObjectID] = json match {
-      case JsString(n) => JsSuccess(BSONObjectID.parse(n).get)
-      case _ => JsError(Seq(JsPath() -> Seq(ValidationError("error.expected.jsstring"))))
-    }
-  }
-
-  implicit object BSONObjectIdWrites extends Writes[BSONObjectID] {
-    def writes(o: BSONObjectID): JsValue = JsString(o.stringify)
-  }
+  import com.gilwath.libs.json.BSONReads._
+  import com.gilwath.libs.json.BSONWrites._
 
   implicit val campaignFormat: Format[Campaign] = Json.format[Campaign]
 
