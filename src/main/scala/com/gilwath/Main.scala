@@ -32,6 +32,11 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
     path(Segment) { id =>
       get {
         complete(Campaigns.findOneById(BSONObjectID.apply(id)))
+      } ~
+      put {
+        entity(as[Campaign]) { campaign =>
+          complete(Campaigns.update(campaign))
+        }
       }
     }
   }
