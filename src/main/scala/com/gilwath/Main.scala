@@ -18,9 +18,7 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
   val driver = new MongoDriver(system)
   implicit val db = driver.connection(Seq("localdocker")).db("summit")
 
-  val route = pathPrefix("campaign") {
-    complete("campaign")
-  }
+  val route = ???
 
   startServer("localhost", 9090) {
     pathSingleSlash {
