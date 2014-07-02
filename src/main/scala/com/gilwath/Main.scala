@@ -29,9 +29,9 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
         complete(Campaigns.findAll().map(c => Json.obj("campaigns" -> c)))
       }
     } ~
-    path(Segment) { id =>
+    path(bsonId) { id =>
       get {
-        complete(Campaigns.findOneById(BSONObjectID.apply(id)))
+        complete(Campaigns.findOneById(id))
       } ~
       put {
         entity(as[Campaign]) { campaign =>
@@ -39,7 +39,7 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
         }
       } ~
       delete {
-        complete(Campaigns.delete(BSONObjectID.apply(id)).map(_ => HttpResponse(StatusCodes.OK)))
+        complete(Campaigns.delete(id).map(_ => HttpResponse(StatusCodes.OK)))
       }
     }
   }
