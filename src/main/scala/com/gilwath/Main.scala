@@ -37,6 +37,9 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
         entity(as[Campaign]) { campaign =>
           complete(Campaigns.update(campaign))
         }
+      } ~
+      delete {
+        complete(Campaigns.delete(BSONObjectID.apply(id)).map(_ => HttpResponse(StatusCodes.OK)))
       }
     }
   }
