@@ -18,7 +18,13 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
   val driver = new MongoDriver(system)
   implicit val db = driver.connection(Seq("localdocker")).db("summit")
 
-  val route = ???
+  val route = pathPrefix("campaign") {
+    post {
+      entity(as[Campaign]) { campaign =>
+        complete(Campaigns.insert(campaign))
+      }
+    }
+  }
 
   startServer("localhost", 9090) {
     pathSingleSlash {
