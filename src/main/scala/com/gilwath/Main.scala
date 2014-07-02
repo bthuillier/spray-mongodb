@@ -19,13 +19,20 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
   implicit val db = driver.connection(Seq("localdocker")).db("summit")
 
   val route = pathPrefix("campaign") {
-    post {
-      entity(as[Campaign]) { campaign =>
-        complete(Campaigns.insert(campaign))
+    pathEnd {
+      post {
+        entity(as[Campaign]) { campaign =>
+          complete(Campaigns.insert(campaign))
+        }
+      } ~
+      get {
+        complete(Campaigns.findAll().map(c => Json.obj("campaigns" -> c)))
       }
     } ~
-    get {
-      complete(Campaigns.findAll().map(c => Json.obj("campaigns" -> c)))
+    path(Segment) { id =>
+      get {
+        complete(Campaigns.findOneById(BSONObjectID.apply(id)))
+      }
     }
   }
 
