@@ -23,6 +23,9 @@ object Main extends App with SimpleRoutingApp with PlayJsonSupport {
       entity(as[Campaign]) { campaign =>
         complete(Campaigns.insert(campaign))
       }
+    } ~
+    get {
+      complete(Campaigns.findAll().map(c => Json.obj("campaigns" -> c)))
     }
   }
 
