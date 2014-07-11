@@ -16,7 +16,7 @@ import com.gilwath.routing.BSONPathMatcher._
 object Main extends App with SimpleRoutingApp with PlayJsonSupport {
   implicit val system = ActorSystem("my-system")
   val driver = new MongoDriver(system)
-  implicit val db = driver.connection(Seq("localdocker")).db("summit")
+  implicit val db = driver.connection(Seq("localhost")).db("spray-mongodb")
 
   val route = pathPrefix("campaign") {
     pathEnd {
