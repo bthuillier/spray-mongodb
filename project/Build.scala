@@ -4,7 +4,7 @@ import Keys._
 object Build extends Build {
 
   lazy val summit = Project(
-    id = "summit",
+    id = "spray-mongodb",
     base = file("."),
     settings = Project.defaultSettings ++ Seq(
       libraryDependencies ++= dependencies
